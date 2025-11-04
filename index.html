@@ -1,0 +1,607 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Expression Tree Visualizer | Rural STEM Education</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            color: #333;
+            line-height: 1.6;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        header {
+            text-align: center;
+            padding: 20px 0;
+            margin-bottom: 30px;
+        }
+        
+        h1 {
+            color: #2c3e50;
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+        
+        .subtitle {
+            color: #3498db;
+            font-size: 1.2rem;
+            margin-bottom: 15px;
+        }
+        
+        .sdg-badge {
+            display: inline-block;
+            background-color: #1a936f;
+            color: white;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            margin-bottom: 20px;
+        }
+        
+        .app-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+        
+        .input-section {
+            flex: 1;
+            min-width: 300px;
+            background: white;
+            border-radius: 10px;
+            padding: 25px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .visualization-section {
+            flex: 2;
+            min-width: 500px;
+            background: white;
+            border-radius: 10px;
+            padding: 25px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-direction: column;
+        }
+        
+        h2 {
+            color: #2c3e50;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #ecf0f1;
+        }
+        
+        .input-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+        
+        input, select {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 1rem;
+        }
+        
+        button {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            transition: background-color 0.3s;
+            width: 100%;
+        }
+        
+        button:hover {
+            background-color: #2980b9;
+        }
+        
+        .tree-container {
+            flex: 1;
+            min-height: 400px;
+            border: 1px solid #ecf0f1;
+            border-radius: 5px;
+            overflow: auto;
+            position: relative;
+        }
+        
+        #expressionTree {
+            width: 100%;
+            height: 100%;
+        }
+        
+        .examples {
+            margin-top: 20px;
+        }
+        
+        .example-list {
+            list-style-type: none;
+        }
+        
+        .example-list li {
+            padding: 8px 0;
+            border-bottom: 1px solid #ecf0f1;
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+        
+        .example-list li:hover {
+            color: #3498db;
+        }
+        
+        .explanation {
+            margin-top: 30px;
+            background: #e8f4fc;
+            padding: 20px;
+            border-radius: 10px;
+        }
+        
+        .explanation h3 {
+            color: #2c3e50;
+            margin-bottom: 15px;
+        }
+        
+        .explanation p {
+            margin-bottom: 15px;
+        }
+        
+        .steps {
+            margin-top: 20px;
+        }
+        
+        .step {
+            display: flex;
+            margin-bottom: 15px;
+        }
+        
+        .step-number {
+            background-color: #3498db;
+            color: white;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 15px;
+            flex-shrink: 0;
+        }
+        
+        .evaluation-result {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #f8f9fa;
+            border-radius: 5px;
+            border-left: 4px solid #3498db;
+        }
+        
+        .error-message {
+            color: #e74c3c;
+            margin-top: 10px;
+            padding: 10px;
+            background-color: #fdf2f2;
+            border-radius: 5px;
+            border-left: 4px solid #e74c3c;
+        }
+        
+        footer {
+            text-align: center;
+            padding: 20px;
+            margin-top: 40px;
+            color: #7f8c8d;
+            font-size: 0.9rem;
+        }
+        
+        @media (max-width: 768px) {
+            .app-container {
+                flex-direction: column;
+            }
+            
+            .input-section, .visualization-section {
+                min-width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Expression Tree Visualizer</h1>
+            <div class="subtitle">Making Math Concepts Visual for Rural STEM Education</div>
+            <div class="sdg-badge">Supporting UN Sustainable Development Goal 4: Quality Education</div>
+        </header>
+        
+        <div class="app-container">
+            <section class="input-section">
+                <h2>Enter Expression</h2>
+                <div class="input-group">
+                    <label for="expressionInput">Mathematical Expression:</label>
+                    <input type="text" id="expressionInput" placeholder="e.g., (3+5)*2" value="(3+5)*2">
+                </div>
+                
+                <div class="input-group">
+                    <label for="variableValues">Variable Values (if any):</label>
+                    <input type="text" id="variableValues" placeholder="e.g., x=5, y=3">
+                </div>
+                
+                <button id="visualizeBtn">Visualize Expression Tree</button>
+                
+                <div class="examples">
+                    <h3>Example Expressions</h3>
+                    <ul class="example-list">
+                        <li onclick="loadExample('(3+5)*2')">(3 + 5) * 2</li>
+                        <li onclick="loadExample('5*x+3')">5 * x + 3</li>
+                        <li onclick="loadExample('(a+b)*(c-d)')">(a + b) * (c - d)</li>
+                        <li onclick="loadExample('2^3+4*5')">2^3 + 4 * 5</li>
+                        <li onclick="loadExample('sin(x)+cos(y)')">sin(x) + cos(y)</li>
+                    </ul>
+                </div>
+            </section>
+            
+            <section class="visualization-section">
+                <h2>Expression Tree Visualization</h2>
+                <div class="tree-container">
+                    <canvas id="expressionTree"></canvas>
+                </div>
+                <div class="evaluation-result" id="evaluationResult"></div>
+                <div class="error-message" id="errorMessage" style="display: none;"></div>
+            </section>
+        </div>
+        
+        <div class="explanation">
+            <h3>How Expression Trees Work</h3>
+            <p>An expression tree is a binary tree representation of a mathematical expression where:</p>
+            
+            <div class="steps">
+                <div class="step">
+                    <div class="step-number">1</div>
+                    <div class="step-content">Leaf nodes represent operands (numbers or variables)</div>
+                </div>
+                <div class="step">
+                    <div class="step-number">2</div>
+                    <div class="step-content">Internal nodes represent operators (+, -, *, /, ^)</div>
+                </div>
+                <div class="step">
+                    <div class="step-number">3</div>
+                    <div class="step-content">The tree structure follows the order of operations</div>
+                </div>
+                <div class="step">
+                    <div class="step-number">4</div>
+                    <div class="step-content">Evaluation happens from the bottom up</div>
+                </div>
+            </div>
+            
+            <p>This visual approach helps students in rural areas understand complex mathematical concepts by breaking them down into simpler, visual components.</p>
+        </div>
+        
+        <footer>
+            <p>Expression Tree Visualizer for Rural STEM Education | Supporting SDG 4: Quality Education</p>
+            <p>Designed to make mathematical concepts accessible to all students, regardless of location.</p>
+        </footer>
+    </div>
+
+    <script>
+        // DOM elements
+        const expressionInput = document.getElementById('expressionInput');
+        const variableValues = document.getElementById('variableValues');
+        const visualizeBtn = document.getElementById('visualizeBtn');
+        const canvas = document.getElementById('expressionTree');
+        const ctx = canvas.getContext('2d');
+        const evaluationResult = document.getElementById('evaluationResult');
+        const errorMessage = document.getElementById('errorMessage');
+        
+        // Initialize canvas size
+        function resizeCanvas() {
+            const container = canvas.parentElement;
+            canvas.width = container.clientWidth;
+            canvas.height = container.clientHeight;
+        }
+        
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
+        
+        // Load example expression
+        function loadExample(expression) {
+            expressionInput.value = expression;
+            visualizeExpression();
+        }
+        
+        // Parse expression and build tree
+        function buildExpressionTree(expression) {
+            // Remove spaces
+            expression = expression.replace(/\s/g, '');
+            
+            // Tokenize the expression
+            const tokens = tokenize(expression);
+            
+            // Build tree using shunting yard algorithm
+            return parseExpression(tokens);
+        }
+        
+        function tokenize(expression) {
+            const tokens = [];
+            let currentToken = '';
+            
+            for (let i = 0; i < expression.length; i++) {
+                const char = expression[i];
+                
+                if (isOperator(char) || char === '(' || char === ')') {
+                    if (currentToken !== '') {
+                        tokens.push(currentToken);
+                        currentToken = '';
+                    }
+                    tokens.push(char);
+                } else {
+                    currentToken += char;
+                }
+            }
+            
+            if (currentToken !== '') {
+                tokens.push(currentToken);
+            }
+            
+            return tokens;
+        }
+        
+        function isOperator(char) {
+            return ['+', '-', '*', '/', '^'].includes(char);
+        }
+        
+        function getPrecedence(operator) {
+            switch (operator) {
+                case '+':
+                case '-':
+                    return 1;
+                case '*':
+                case '/':
+                    return 2;
+                case '^':
+                    return 3;
+                default:
+                    return 0;
+            }
+        }
+        
+        function isLeftAssociative(operator) {
+            return operator !== '^';
+        }
+        
+        function parseExpression(tokens) {
+            const outputQueue = [];
+            const operatorStack = [];
+            
+            for (let i = 0; i < tokens.length; i++) {
+                const token = tokens[i];
+                
+                if (!isNaN(token) || /^[a-zA-Z]+$/.test(token)) {
+                    // Operand (number or variable)
+                    outputQueue.push(token);
+                } else if (isOperator(token)) {
+                    // Operator
+                    while (
+                        operatorStack.length > 0 &&
+                        operatorStack[operatorStack.length - 1] !== '(' &&
+                        (getPrecedence(operatorStack[operatorStack.length - 1]) > getPrecedence(token) ||
+                        (getPrecedence(operatorStack[operatorStack.length - 1]) === getPrecedence(token) &&
+                        isLeftAssociative(token)))
+                    ) {
+                        outputQueue.push(operatorStack.pop());
+                    }
+                    operatorStack.push(token);
+                } else if (token === '(') {
+                    // Left parenthesis
+                    operatorStack.push(token);
+                } else if (token === ')') {
+                    // Right parenthesis
+                    while (operatorStack.length > 0 && operatorStack[operatorStack.length - 1] !== '(') {
+                        outputQueue.push(operatorStack.pop());
+                    }
+                    if (operatorStack.length === 0) {
+                        throw new Error("Mismatched parentheses");
+                    }
+                    operatorStack.pop(); // Remove the '('
+                }
+            }
+            
+            // Pop remaining operators
+            while (operatorStack.length > 0) {
+                if (operatorStack[operatorStack.length - 1] === '(') {
+                    throw new Error("Mismatched parentheses");
+                }
+                outputQueue.push(operatorStack.pop());
+            }
+            
+            // Build tree from RPN (Reverse Polish Notation)
+            return buildTreeFromRPN(outputQueue);
+        }
+        
+        function buildTreeFromRPN(rpn) {
+            const stack = [];
+            
+            for (let i = 0; i < rpn.length; i++) {
+                const token = rpn[i];
+                
+                if (isOperator(token)) {
+                    // Operator node
+                    if (stack.length < 2) {
+                        throw new Error("Invalid expression");
+                    }
+                    const right = stack.pop();
+                    const left = stack.pop();
+                    stack.push({
+                        value: token,
+                        left: left,
+                        right: right
+                    });
+                } else {
+                    // Operand node
+                    stack.push({
+                        value: token,
+                        left: null,
+                        right: null
+                    });
+                }
+            }
+            
+            if (stack.length !== 1) {
+                throw new Error("Invalid expression");
+            }
+            
+            return stack[0];
+        }
+        
+        // Calculate tree dimensions for proper drawing
+        function calculateTreeDimensions(tree) {
+            if (!tree) return { width: 0, height: 0 };
+            
+            if (!tree.left && !tree.right) {
+                // Leaf node
+                return { width: 60, height: 60 };
+            }
+            
+            const leftDim = calculateTreeDimensions(tree.left);
+            const rightDim = calculateTreeDimensions(tree.right);
+            
+            return {
+                width: leftDim.width + rightDim.width + 40,
+                height: Math.max(leftDim.height, rightDim.height) + 80
+            };
+        }
+        
+        // Draw the expression tree
+        function drawTree(tree, x, y, level, horizontalSpacing) {
+            if (!tree) return;
+            
+            const radius = 25;
+            const verticalSpacing = 80;
+            
+            // Draw node
+            ctx.beginPath();
+            ctx.arc(x, y, radius, 0, Math.PI * 2);
+            ctx.fillStyle = isOperator(tree.value) ? '#3498db' : '#2ecc71';
+            ctx.fill();
+            ctx.stroke();
+            
+            // Draw text
+            ctx.fillStyle = 'white';
+            ctx.font = '16px Arial';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText(tree.value, x, y);
+            
+            // Draw left child
+            if (tree.left) {
+                const childX = x - horizontalSpacing;
+                const childY = y + verticalSpacing;
+                
+                // Draw connecting line
+                ctx.beginPath();
+                ctx.moveTo(x, y + radius);
+                ctx.lineTo(childX, childY - radius);
+                ctx.stroke();
+                
+                drawTree(tree.left, childX, childY, level + 1, horizontalSpacing / 2);
+            }
+            
+            // Draw right child
+            if (tree.right) {
+                const childX = x + horizontalSpacing;
+                const childY = y + verticalSpacing;
+                
+                // Draw connecting line
+                ctx.beginPath();
+                ctx.moveTo(x, y + radius);
+                ctx.lineTo(childX, childY - radius);
+                ctx.stroke();
+                
+                drawTree(tree.right, childX, childY, level + 1, horizontalSpacing / 2);
+            }
+        }
+        
+        // Evaluate the expression
+        function evaluateExpression(tree, variables = {}) {
+            if (!tree) return 0;
+            
+            // If it's a leaf node (operand)
+            if (!tree.left && !tree.right) {
+                // Check if it's a variable
+                if (isNaN(tree.value)) {
+                    return variables[tree.value] || 0;
+                }
+                return parseFloat(tree.value);
+            }
+            
+            // Evaluate left and right subtrees
+            const leftVal = evaluateExpression(tree.left, variables);
+            const rightVal = evaluateExpression(tree.right, variables);
+            
+            // Apply operator
+            switch (tree.value) {
+                case '+': return leftVal + rightVal;
+                case '-': return leftVal - rightVal;
+                case '*': return leftVal * rightVal;
+                case '/': 
+                    if (rightVal === 0) throw new Error("Division by zero");
+                    return leftVal / rightVal;
+                case '^': return Math.pow(leftVal, rightVal);
+                default: throw new Error(`Unknown operator: ${tree.value}`);
+            }
+        }
+        
+        // Parse variable values
+        function parseVariableValues(variableString) {
+            const variables = {};
+            if (!variableString.trim()) return variables;
+            
+            const pairs = variableString.split(',');
+            pairs.forEach(pair => {
+                const [name, value] = pair.split('=');
+                if (name && value) {
+                    variables[name.trim()] = parseFloat(value.trim());
+                }
+            });
+            
+            return variables;
+        }
+        
+        // Main visualization function
+        function visualizeExpression() {
+            const expression = expressionInput.value;
+            if (!expression) {
+                showError('Please enter an expression');
+                return;
+            }
+            
+            try {
+                // Hide any previous error
+                hideError();
+                
+                // Build expression tree
+              
